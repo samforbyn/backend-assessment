@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Back End Assessment</title>
+  </head>
+  <body class="container">
+    <button id="complimentButton">Get a compliment</button>
+    <button id="fortuneBtn">Get a fortune</button>
+    <button id="luckyNumBtn">Get lucky number</button>
+    <form id = form1>
+      <h1>Make your own compliment list:</h1>
+      <input type="text" id = complimentText placeholder = "Add Custom Compliment">
+      <button id = customComplimentBtn>Add</button>
+    </form>
+    <form id = form2">
+      <h1>Remove a compliment based on index:</h1>
+      <input type="text" id = removeCompId placeholder = "compliment index">
+      <button id = removeComp>Remove</button>
+    </form>
+    <button id = starWarz>display star wars films R2-D2 was in</button>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script>
+      document.getElementById("complimentButton").onclick = function () {
+        axios.get("http://localhost:4000/api/compliment/")
+            .then(function (response) {
+              const data = response.data;
+              alert(data);
+            });
+      };
+      document.getElementById("fortuneBtn").onclick = function () {
+        axios.get("http://localhost:4000/api/fortune/")
+        .then(function (res) {
+          const newdata = res.data
+          alert(newdata);
+        })
+      }
+      let GID = 0
+      document.getElementById("customComplimentBtn").onclick = function (e) {
+        e.preventDefault()
+        let customText = document.getElementById("complimentText")
+        axios.put("http://localhost:4000/api/compliments/")
+          .then(function (res) {
+            const body = {
+              text: customText.value,
+              id: GID
+            }
+            let newDiv = document.createElement("ul")
+            let bodySelect = document.querySelector("body")
+            newDiv.textContent = body.text
+            bodySelect.appendChild(newDiv)
+            console.log(body.text,"<- bodyCustomText || res.data ->" ,res.data)
+            console.log(body.text, body.id)
+          })
+          GID++
+      }
+      document.getElementById("luckyNumBtn").onclick = function () {
+        axios.get("http://localhost:4000/api/lucky")
+        .then(function (res) {
+          const data = res.data
+          alert(`Your lucky number is: ${data}`)
+        })
+
+      }
+
+      document.getElementById("starWarz").onclick = function () {
+        axios.get('https://swapi.dev/api/people')
+        .then((res) => {
+          console.log(res.data)
+          const {results} = res.data
+          const r2D2 = results[2]
+          const {films} = r2D2
+          console.log(films)
+          for(let i = 0; i < films.length; i++){
+            let URLS = films[i]
+            axios.get(URLS).then((res) =>{
+              let newDiv = document.createElement("div")
+              let bdy = document.querySelector("body")
+              newDiv.textContent = res.data.title
+              bdy.appendChild(newDiv)
+            })
+          }
+        })
+      }
+      document.getElementById("removeComp").onclick = function (e, id) {
+        e.preventDefault()
+        let comp2remove = document.getElementById("removeCompId")
+        axios.delete("http://localhost:4000/api/compliments/:id")
+          .then((res) => {
+            const body = {
+              id: comp2remove.value
+            }
+            
+          })
+      }
+
+    </script>
+  </body>
+</html>
